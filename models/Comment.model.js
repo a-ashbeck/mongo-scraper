@@ -7,11 +7,11 @@ var CommentSchema = new Schema({
         ref: 'Story',
         required: true
     },
-    userID: {
+    userId: {
         type: String,
         required: true,
     },
-    body: {
+    text: {
         type: String,
         required: true
     },
