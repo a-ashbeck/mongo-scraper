@@ -23,9 +23,18 @@ db.on('error', function(error) {
   console.log('Database Error:', error);
 });
 
-// Main route (simple Hello World Message)
+// Main route, displays all stories
 app.get('/', function(req, res) {
-  res.send('Hello world');
+  Story.find({})
+    .exec(err, stories) {
+      if (err) {
+        console.log(err);
+        res.send('Error in retrieving stroes!');
+      } else {
+        console.log(stories);
+        res.json(stories);
+      }
+    }
 });
 
 // Retrieve data from the db
