@@ -14,13 +14,10 @@ var app = express();
 var databaseUrl = 'scraper';
 var collections = ['scrapedData'];
 
-// Mongoose database connection with Heroku configuration
-mongoose.connect('mongodb://heroku_6p4k868n:m8omduel4nqlonrefu044pfh2t@ds157349.mlab.com:57349/heroku_6p4k868n');
-
 // Hook mongojs configuration to the db variable
 var db = mongojs(databaseUrl, collections);
-db.on('error', function(error) {
-  console.log('Database Error:', error);
+db.on('err', function(err) {
+  console.log('Database Error:', err);
 });
 
 // Main route, displays all stories
@@ -40,10 +37,10 @@ app.get('/', function(req, res) {
 // Retrieve data from the db
 app.get('/all', function(req, res) {
   // Find all results from the scrapedData collection in the db
-  db.scrapedData.find({}, function(error, found) {
+  db.scrapedData.find({}, function(err, found) {
     // Throw any errors to the console
-    if (error) {
-      console.log(error);
+    if (err) {
+      console.log(err);
     }
     // If there are no errors, send the data to the browser as a json
     else {
@@ -53,30 +50,27 @@ app.get('/all', function(req, res) {
 });
 
 // Scrape data from one site and place it into the mongodb db
-app.get('/scrape', function(req, res) {
+app.get('/', function(req, res) {
   // Make a request for the news section of ycombinator
-  request('https://news.ycombinator.com/', function(error, response, html) {
+  request('https://news.ycombinator.com/', function(e, response, html) {
     // Load the html body from request into cheerio
     var $ = cheerio.load(html);
     // For each element with a 'title' class
     $('.title').each(function(i, element) {
+      var newStory = new Story();
       // Save the text of each link enclosed in the current element
-      var title = $(this).children('a').text();
+      newStory.title = $(this).children('a').text();
       // Save the href value of each link enclosed in the current element
-      var link = $(this).children('a').attr('href'');
+      newStory.link = $(this).children('a').attr('href');
 
       // If this title element had both a title and a link
-      if (title && link) {
+      if (newStory.title && newStory.link) {
         // Save the data in the scrapedData db
-        db.scrapedData.save({
-          title: title,
-          link: link
-        },
-        function(error, saved) {
+        newStory.save(function(err, saved) {
           // If there's an error during this query
-          if (error) {
+          if (err) {
             // Log the error
-            console.log(error);
+            console.log(err);
           }
           // Otherwise,
           else {
@@ -92,6 +86,8 @@ app.get('/scrape', function(req, res) {
   res.send('Scrape Complete');
 });
 
+// Mongoose database connection with Heroku configuration
+mongoose.connect('mongodb://heroku_6p4k868n:m8omduel4nqlonrefu044pfh2t@ds157349.mlab.com:57349/heroku_6p4k868n');
 
 // Listen on port 3000
 app.listen(3000, function() {

@@ -6,7 +6,7 @@ var StorySchema = new Schema({
         type: String,
         required: true,
     },
-    url: {
+    link: {
         type: String,
         required: true,
         unique: true
@@ -19,26 +19,6 @@ var StorySchema = new Schema({
         type: Schema.ObjectId,
         ref: 'Comments'
     }]
-});
-
-var CommentSchema = new Schema({
-    _story: {
-        type: string,
-        ref: 'Story',
-        required: true
-    },
-    userID: {
-        type: String,
-        required: true,
-    },
-    body: {
-        type: String,
-        required: true
-    },
-    timestamp: {
-        type: Date,
-        default: Date.now
-    }
 });
  
 module.exports = mongoose.model('Story', StorySchema);
