@@ -14,11 +14,15 @@ var app = express();
 var databaseUrl = 'scraper';
 var collections = ['scrapedData'];
 
-// Hook mongojs configuration to the db variable
-var db = mongojs(databaseUrl, collections);
-db.on('err', function(err) {
-  console.log('Database Error:', err);
-});
+// Setup engine for Handlebars
+app.engine('handlebars', expressHandlebars({ defaultLayout: 'main' }));
+app.set('view engine', 'handlebars');
+// Setup static directory
+app.use(express.static(__dirname + '/public'));
+// Parse the body
+app.use(bodyParser.json());
+// Parse application/x-www-form-urlencoded to send those young body elements through the q-string
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Main route, displays all stories
 app.get('/', function(req, res) {
@@ -26,7 +30,7 @@ app.get('/', function(req, res) {
     .exec(err, stories) {
       if (err) {
         console.log(err);
-        res.send('Error in retrieving stroes!');
+        res.send('Error in retrieving stories!');
       } else {
         console.log(stories);
         res.json(stories);
@@ -34,22 +38,7 @@ app.get('/', function(req, res) {
     }
 });
 
-// Retrieve data from the db
-app.get('/all', function(req, res) {
-  // Find all results from the scrapedData collection in the db
-  db.scrapedData.find({}, function(err, found) {
-    // Throw any errors to the console
-    if (err) {
-      console.log(err);
-    }
-    // If there are no errors, send the data to the browser as a json
-    else {
-      res.json(found);
-    }
-  });
-});
-
-// Scrape data from one site and place it into the mongodb db
+// Scrape data from one site and place it into the mongodb
 app.get('/', function(req, res) {
   // Make a request for the news section of ycombinator
   request('https://news.ycombinator.com/', function(e, response, html) {
@@ -57,7 +46,9 @@ app.get('/', function(req, res) {
     var $ = cheerio.load(html);
     // For each element with a 'title' class
     $('.title').each(function(i, element) {
+      // Define a newStory variable
       var newStory = new Story();
+
       // Save the text of each link enclosed in the current element
       newStory.title = $(this).children('a').text();
       // Save the href value of each link enclosed in the current element
@@ -88,6 +79,9 @@ app.get('/', function(req, res) {
 
 // Mongoose database connection with Heroku configuration
 mongoose.connect('mongodb://heroku_6p4k868n:m8omduel4nqlonrefu044pfh2t@ds157349.mlab.com:57349/heroku_6p4k868n');
+
+// Require routes from controller
+require('./controllers/app_controller.js')(app);
 
 // Listen on port 3000
 app.listen(3000, function() {
