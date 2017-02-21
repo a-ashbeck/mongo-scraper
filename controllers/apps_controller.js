@@ -78,6 +78,4 @@ module.exports = function(app) {
 
     response.redirect('/stories');
 	});
-
-
 };
