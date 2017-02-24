@@ -29,7 +29,7 @@ app.use(express.static(__dirname + '/public'));
 app.use(methodOverride('_method'));
 
 // Database configuration with mongoose
-mongoose.connect('mongodb://heroku_6p4k868n:m8omduel4nqlonrefu044pfh2t@ds157349.mlab.com:57349/heroku_6p4k868n');
+mongoose.connect('mongodb://heroku_hwl3jfjd:dtbj253tsvcs2seet8s86poi0e@ds161059.mlab.com:61059/heroku_hwl3jfjd');
 var db = mongoose.connection;
 
 // Show any mongoose errors

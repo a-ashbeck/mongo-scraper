@@ -19,7 +19,7 @@ module.exports = function(app) {
             var $ = cheerio.load(html);
 
             // For each p element with a 'title' class
-            $("p.title").each(function(i, element) {
+            $('p.title').each(function(i, element) {
                 // Define a articleObj variable
                 var articleObj = {};
 
@@ -28,7 +28,7 @@ module.exports = function(app) {
                 // Save the text of each link enclosed in the current element
                 articleObj.title = $(this).text();
                 // Save the href value of each link enclosed in the current element
-                articleObj.link = $(this).children().attr("href");
+                articleObj.link = $(this).children().attr('href');
 
                 // Push new article object to articlesArray
                 articlesArray.push(articleObj);
