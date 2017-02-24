@@ -5,12 +5,7 @@ var bodyParser = require('body-parser');
 var logger = require('morgan');
 var mongoose = require('mongoose');
 var methodOverride = require('method-override');
-var request = require('request');
-var cheerio = require('cheerio');
-var Article = require('./models/Article.model')
-var Comment = require('./models/Article.model')
 var Promise = require('bluebird');
-
 mongoose.Promise = Promise;
 
 // Initialize Express
@@ -34,8 +29,7 @@ app.use(express.static(__dirname + '/public'));
 app.use(methodOverride('_method'));
 
 // Database configuration with mongoose
-// mongoose.connect('mongodb://heroku_6p4k868n:m8omduel4nqlonrefu044pfh2t@ds157349.mlab.com:57349/heroku_6p4k868n');
-mongoose.connect("mongodb://localhost/newtest");
+mongoose.connect('mongodb://heroku_6p4k868n:m8omduel4nqlonrefu044pfh2t@ds157349.mlab.com:57349/heroku_6p4k868n');
 var db = mongoose.connection;
 
 // Show any mongoose errors

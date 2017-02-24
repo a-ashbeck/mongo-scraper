@@ -5,9 +5,9 @@ var request = require('request');
 
 // Export app routes
 module.exports = function(app) {
-		app.get('/', function(req, res) {
-			res.render('home');
-		});
+    app.get('/', function(req, res) {
+        res.render('home');
+    });
     // Scrape data from one site and display
     app.get('/index', function(req, res) {
         // Set the articles array for handlebar use
@@ -67,7 +67,6 @@ module.exports = function(app) {
                     });
                     // Render the array in the articles route for handlebars
                     res.render('articles', { articles: allSavedArticles });
-                    console.log(allSavedArticles);
                 }
             });
     });
@@ -81,7 +80,7 @@ module.exports = function(app) {
                 _article: article._id,
                 text: comment.text
             }, function(err, doc) {
-            		console.log(doc);
+                console.log(doc);
                 article.comments.push(doc);
                 article.save(function(err) {
                     if (err) {
