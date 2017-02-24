@@ -1,34 +1,55 @@
 // Dependencies
 var express = require('express');
 var handlebars = require('express-handlebars');
-var mongojs = require('mongojs');
+var bodyParser = require('body-parser');
+var logger = require('morgan');
 var mongoose = require('mongoose');
+var methodOverride = require('method-override');
 var request = require('request');
 var cheerio = require('cheerio');
-var Story = require('./models/Story.model')
+var Article = require('./models/Article.model')
+var Comment = require('./models/Article.model')
+var Promise = require('bluebird');
+
+mongoose.Promise = Promise;
 
 // Initialize Express
 var app = express();
 
-// Database configuration
-var databaseUrl = 'scraper';
-var collections = ['scrapedData'];
+// Log activity
+app.use(logger('dev'));
+
+// Set up body parser
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
 // Setup engine for Handlebars
-app.engine('handlebars', expressHandlebars({ defaultLayout: 'main' }));
+app.engine('handlebars', handlebars({ defaultLayout: 'main' }));
 app.set('view engine', 'handlebars');
+
 // Setup static directory
 app.use(express.static(__dirname + '/public'));
-// Parse the body
-app.use(bodyParser.json());
-// Parse application/x-www-form-urlencoded to send those young body elements through the q-string
-app.use(bodyParser.urlencoded({ extended: true }));
 
-// Mongoose database connection with Heroku configuration
-mongoose.connect('mongodb://heroku_6p4k868n:m8omduel4nqlonrefu044pfh2t@ds157349.mlab.com:57349/heroku_6p4k868n');
+// Override with POST having ?_method=DELETE
+app.use(methodOverride('_method'));
+
+// Database configuration with mongoose
+// mongoose.connect('mongodb://heroku_6p4k868n:m8omduel4nqlonrefu044pfh2t@ds157349.mlab.com:57349/heroku_6p4k868n');
+mongoose.connect("mongodb://localhost/newtest");
+var db = mongoose.connection;
+
+// Show any mongoose errors
+db.on('error', function(error) {
+  console.log('Mongoose Error: ', error);
+});
+
+// Once logged in to the db through mongoose, log a success message
+db.once('open', function() {
+  console.log('Mongoose connection successful.');
+});
 
 // Require routes from controller
-require('./controllers/app_controller.js')(app);
+require('./controllers/apps_controller.js')(app);
 
 // Listen on port 3000
 app.listen(3000, function() {

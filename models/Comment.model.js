@@ -2,18 +2,12 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var CommentSchema = new Schema({
-    _story: {
-        type: string,
-        ref: 'Story',
-        required: true
-    },
-    userId: {
+    _article: {
         type: String,
-        required: true,
+        ref: 'Article'
     },
     text: {
-        type: String,
-        required: true
+        type: String
     },
     timestamp: {
         type: Date,

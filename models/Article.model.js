@@ -1,9 +1,10 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-var StorySchema = new Schema({
+var ArticleSchema = new Schema({
     title: {
         type: String,
+        trim: true,
         required: true,
     },
     link: {
@@ -17,8 +18,8 @@ var StorySchema = new Schema({
     },
     comments: [{
         type: Schema.ObjectId,
-        ref: 'Comments'
+        ref: 'Comment'
     }]
 });
  
-module.exports = mongoose.model('Story', StorySchema);
+module.exports = mongoose.model('Article', ArticleSchema);

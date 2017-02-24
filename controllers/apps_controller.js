@@ -1,81 +1,105 @@
-var Story = require('../models/Story.model.js');
-var Comment = require('../models/Comment.model.js');
+var Article = require('../models/Article.model');
+var Comment = require('../models/Comment.model');
 var cheerio = require('cheerio');
 var request = require('request');
 
 // Export app routes
 module.exports = function(app) {
-	// Scrape data from one site and place it into the mongodb
-	app.get('/', function(req, res) {
-	  // Make a request for the news section of ycombinator
-	  request('https://news.ycombinator.com/', function(e, response, html) {
-	    // Load the html body from request into cheerio
-	    var $ = cheerio.load(html);
-	    // For each element with a 'title' class
-	    $('.title').each(function(i, element) {
-	      // Define a newStory variable
-	      var newStory = new Story();
+		app.get('/', function(req, res) {
+			res.render('home');
+		});
+    // Scrape data from one site and display
+    app.get('/index', function(req, res) {
+        // Set the articles array for handlebar use
+        var articlesArray = [];
 
-	      // Save the text of each link enclosed in the current element
-	      newStory.title = $(this).children('a').text();
-	      // Save the href value of each link enclosed in the current element
-	      newStory.link = $(this).children('a').attr('href');
+        // Make a request for the news section of reddit
+        request('https://www.reddit.com/r/all', function(err, res2, html) {
+            // Load the html body from request into cheerio
+            var $ = cheerio.load(html);
 
-	      // If this title element had both a title and a link
-	      if (newStory.title && newStory.link) {
-	        // Save the data in the scrapedData db
-	        newStory.save(function(err, story) {
-	          // If there's an error during this query
-	          if (err) {
-	            // Log the error
-	            console.log(err);
-	          }
-	          // Otherwise,
-	          else {
-	            // Log the saved data
-	            console.log(story);
-	          }
-	        });
-	      }
-	    });
-	  });
-	  console.log('Scrape Complete');
-	});
+            // For each p element with a 'title' class
+            $("p.title").each(function(i, element) {
+                // Define a articleObj variable
+                var articleObj = {};
 
-	// Display all stories
-	app.get('/stories', function(req, res) {
-	  Story.find({})
-	    .exec(err, stories) {
-	      if (err) {
-	        console.log(err);
-	        res.send('Error in retrieving stories!');
-	      } else {
-	        console.log(stories);
-	        res.json(stories);
-	      }
-	    }
-	});
+                // Save the iterator for ID use on frontend
+                articleObj.id = i;
+                // Save the text of each link enclosed in the current element
+                articleObj.title = $(this).text();
+                // Save the href value of each link enclosed in the current element
+                articleObj.link = $(this).children().attr("href");
 
-	app.post('/comments', function(req, res) {
-		var newComment = new Comment();
+                // Push new article object to articlesArray
+                articlesArray.push(articleObj);
+            });
+            // Render index and send over the object for handlebars to use
+            res.render('index', { articles: articlesArray });
+        });
+    });
 
-		newComment._story = req.body._id;
-		newComment.userId = req.body.userId;
-		newComment.body = req.body.text
+    app.post('/articles', function(req, res) {
+        var savedArticle = req.body;
+        Article.create(savedArticle, function(err, doc) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.redirect('/index');
+            }
+        });
+    });
 
-    Story.findOne({
-        _id: comment.storyLink
-    }, function(err, story) {
-        Comment.save(function(err, comment) {
-            story.comments.push(comment);
-            story.save(function(err) {
+    app.get('/articles', function(req, res) {
+        // Grab every doc in Articles
+        Article.find({})
+            // Populate any and all associated comments
+            .populate('comments')
+            // Execute the callback
+            .exec(function(err, articles) {
                 if (err) {
-                    console.log(err);
+                    // If error send error
+                    res.send(err);
+                } else {
+                    // Save each article document into an array
+                    var allSavedArticles = articles.map(function(article) {
+                        return article;
+                    });
+                    // Render the array in the articles route for handlebars
+                    res.render('articles', { articles: allSavedArticles });
                 }
+            });
+    });
+
+    app.post('/comments', function(req, res) {
+        var comment = req.body;
+        Article.findOne({
+            title: comment.title
+        }, function(err, article) {
+            Comment.create({
+                _article: article._id,
+                text: comment.text
+            }, function(err, doc) {
+            		console.log(doc);
+                article.comments.push(doc);
+                article.save(function(err) {
+                    if (err) {
+                        res.send(err);
+                    } else {
+                        res.redirect('/articles');
+                    }
+                });
             });
         });
     });
 
-    response.redirect('/stories');
-	});
+    app.delete('/comments', function(req, res) {
+        var commentId = req.body.id;
+        Comment.remove({ _id: commentId }, function(err, comment) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.redirect('/articles');
+            }
+        });
+    });
 };
