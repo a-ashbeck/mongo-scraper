@@ -42,10 +42,11 @@ db.once('open', function() {
   console.log('Mongoose connection successful.');
 });
 
-// Require routes from controller
-require('./controllers/apps_controller.js')(app);
-
 // Listen on port 3000
 app.listen(3000, function() {
   console.log('App running on port 3000!');
 });
+
+// Require routes from controller
+require('./controllers/apps_controller.js')(app);
+
