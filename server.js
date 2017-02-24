@@ -11,6 +11,9 @@ mongoose.Promise = Promise;
 // Initialize Express
 var app = express();
 
+// Set the port
+var PORT = process.env.PORT || 3000;
+
 // Log activity
 app.use(logger('dev'));
 
@@ -43,8 +46,8 @@ db.once('open', function() {
 });
 
 // Listen on port 3000
-app.listen(3000, function() {
-  console.log('App running on port 3000!');
+app.listen(PORT, function() {
+  console.log('App running on port ' + PORT);
 });
 
 // Require routes from controller
