@@ -14,7 +14,7 @@ module.exports = function(app) {
         var articlesArray = [];
 
         // Make a request for the news section of reddit
-        request('https://www.reddit.com/r/all', function(err, res2, html) {
+        request('https://www.reddit.com/r/news', function(err, res2, html) {
             // Load the html body from request into cheerio
             var $ = cheerio.load(html);
 
@@ -42,7 +42,8 @@ module.exports = function(app) {
         var savedArticle = req.body;
         Article.create(savedArticle, function(err, doc) {
             if (err) {
-                res.send(err);
+                console.log(err);
+                res.redirect('/index');
             } else {
                 res.redirect('/index');
             }
@@ -66,6 +67,7 @@ module.exports = function(app) {
                     });
                     // Render the array in the articles route for handlebars
                     res.render('articles', { articles: allSavedArticles });
+                    console.log(allSavedArticles);
                 }
             });
     });
