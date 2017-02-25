@@ -1,3 +1,4 @@
+// Require dependencies
 var Article = require('../models/Article.model');
 var Comment = require('../models/Comment.model');
 var cheerio = require('cheerio');
@@ -38,18 +39,25 @@ module.exports = function(app) {
         });
     });
 
+    // This is the route used to save an article
     app.post('/articles', function(req, res) {
+        // Load the req.body into a variable for ease of use
         var savedArticle = req.body;
+        // Create the new article document
         Article.create(savedArticle, function(err, doc) {
             if (err) {
+                // If there is an error or the entry already exists
+                // log the error in the console and redirect to index
                 console.log(err);
                 res.redirect('/index');
             } else {
+                // redirect to index
                 res.redirect('/index');
             }
         });
     });
 
+    // Route to get all saved articles
     app.get('/articles', function(req, res) {
         // Grab every doc in Articles
         Article.find({})
@@ -71,21 +79,28 @@ module.exports = function(app) {
             });
     });
 
+    // Route to pust comments
     app.post('/comments', function(req, res) {
+        // Load the req.body into a variable for ease of use
         var comment = req.body;
+        // Find the appropriate article document
         Article.findOne({
             title: comment.title
         }, function(err, article) {
+            // Create new comment document
             Comment.create({
                 _article: article._id,
                 text: comment.text
             }, function(err, doc) {
-                console.log(doc);
+                // Push comment doc to article
                 article.comments.push(doc);
+                // Save the article doc
                 article.save(function(err) {
                     if (err) {
+                        // If error, send error
                         res.send(err);
                     } else {
+                        // Redirect to saved articles
                         res.redirect('/articles');
                     }
                 });
@@ -93,12 +108,17 @@ module.exports = function(app) {
         });
     });
 
+    // Route to delete a comment
     app.delete('/comments', function(req, res) {
+        // Load the req.body.id into a variable for ease of use
         var commentId = req.body.id;
+        // Remove the appropriate comments
         Comment.remove({ _id: commentId }, function(err, comment) {
             if (err) {
+                // If error, send error
                 res.send(err);
             } else {
+                // Redirect to saved articles
                 res.redirect('/articles');
             }
         });

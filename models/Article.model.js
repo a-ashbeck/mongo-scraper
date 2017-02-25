@@ -1,6 +1,8 @@
+// Require dependencies
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
+// Define Article schema
 var ArticleSchema = new Schema({
     title: {
         type: String,
@@ -22,4 +24,5 @@ var ArticleSchema = new Schema({
     }]
 });
  
+ // Export the model
 module.exports = mongoose.model('Article', ArticleSchema);

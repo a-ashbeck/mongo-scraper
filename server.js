@@ -1,4 +1,4 @@
-// Dependencies
+// Require dependencies
 var express = require('express');
 var handlebars = require('express-handlebars');
 var bodyParser = require('body-parser');

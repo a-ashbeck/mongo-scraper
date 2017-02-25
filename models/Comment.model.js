@@ -1,6 +1,8 @@
+// Require dependencies
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
+// Define Comment schema
 var CommentSchema = new Schema({
     _article: {
         type: String,
@@ -15,4 +17,5 @@ var CommentSchema = new Schema({
     }
 });
 
+// Export the model
 module.exports = mongoose.model('Comment', CommentSchema);
